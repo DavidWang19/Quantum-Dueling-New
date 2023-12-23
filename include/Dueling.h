@@ -15,6 +15,7 @@ class Dueling
         void setN(int N) { this->N = N; }
         void setM(int M) { this->M = M; }
         void setInitProblemPtr(std::unique_ptr<InitProblemInterface> initProblemPtr) { this->initProblemPtr = std::move(initProblemPtr); }
+        std::unique_ptr<InitProblemInterface>& getInitProblemPtr() { return initProblemPtr; }
         int getClusterNum() { return clusterNum; }
 
         void initProblem();

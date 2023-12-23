@@ -24,6 +24,8 @@ void Dueling::recordParameters()
     if (randomData[0].isSolution) {
         nowSolution = true;
         clusterIsSol.emplace_back(true);
+    } else {
+        clusterIsSol.emplace_back(false);
     }
     for (int i = 1; i < N; i++) {
         if (randomData[i].isSolution) {

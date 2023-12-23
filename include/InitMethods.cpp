@@ -34,3 +34,27 @@ void RandomInit::initProblem(std::vector<DataPoint>& randomData, int N, int M)
         M_cnt--;
     }
 }
+
+void FullSquareInit::initProblem(std::vector<DataPoint>& randomData, int N, int M)
+{
+    randomData.resize(N);
+    for (int i = 0; i < N; i++) {
+        randomData[i].value = i;
+        randomData[i].isSolution = false;
+    }
+    for (int i = 0; i * i < N; i++) {
+        randomData[(i + 1) * (i + 1) - 1].isSolution = true;
+    }
+}
+
+void WorstCaseInit::initProblem(std::vector<DataPoint>& randomData, int N, int M)
+{
+    randomData.resize(N);
+    for (int i = 0; i < N; i++) {
+        randomData[i].value = i;
+        randomData[i].isSolution = false;
+    }
+    for (int i = N - 1; i >= N - M; i--) {
+        randomData[i].isSolution = true;
+    }
+}

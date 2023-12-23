@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstdio>
 #include <algorithm>
+#include <iostream>
 
 bool executeGate(std::unique_ptr<Dueling>& dueling, int target, double& currentProb, int& Iter) {
     if (target == 1) {
@@ -21,17 +22,20 @@ bool executeGate(std::unique_ptr<Dueling>& dueling, int target, double& currentP
     }
 }
 
+constexpr bool SINGLE_GATE_ALPHA = true;
+
 int main()
 {
-    freopen("find_best_c.txt", "w", stdout);
-    int N = 1 << 20;
-    std::unique_ptr<InitProblemInterface> initProblem = std::make_unique<UniDistInit>();
+    //freopen("find_best_c.txt", "w", stdout);
+    int N = 1 << 12;
+    std::unique_ptr<InitProblemInterface> initProblem = std::make_unique<RandomInit>();
     std::unique_ptr<Dueling> dueling = std::make_unique<Dueling>();
     dueling->setN(N);
     dueling->setInitProblemPtr(std::move(initProblem));
-    printf("ALPHA=1..10, N=%d, M=1..SQRT(N)\n", N);
-    for (int M = 1; M <= ceil(sqrt(N)); M++) {
+    for (int lgM = 0; lgM <= 11; lgM++) {
+        int M = 1 << lgM;
         dueling->setM(M);
+        //static_cast<UniDistInit*>(dueling->getInitProblemPtr().get())->setStartIndex(N / M / 2);
         dueling->initProblem();
         dueling->recordParameters();
         int bestAlpha = 0, bestIter = 0;
@@ -42,10 +46,16 @@ int main()
             int Iter = 0;
             double currentProb = dueling->getBestProb();
             while (true) {
-                for (int i = 0; i < alpha; i++) {
+                if (!SINGLE_GATE_ALPHA) {
+                    for (int i = 0; i < alpha; i++) {
+                        if (executeGate(dueling, 1, currentProb, Iter)) {
+                            breakFlag = true;
+                            break;
+                        }
+                    }
+                } else {
                     if (executeGate(dueling, 1, currentProb, Iter)) {
                         breakFlag = true;
-                        break;
                     }
                 }
                 if (breakFlag) break;
@@ -63,7 +73,8 @@ int main()
                 bestIter = Iter;
             }
         }
-        printf("M=%d, bestAlpha=%d, Iter=%d, Prob=%lf\n", M, bestAlpha, bestIter, bestProb);
+        //printf("N=%d, M=%d, bestAlpha=%d, Iter=%d, Prob=%lf\n", N, M, bestAlpha, bestIter, bestProb);
+        std::cerr << "N=" << N << ", M=" << M << ", bestAlpha=" << bestAlpha << ", Iter=" << bestIter << ", Prob=" << bestProb << std::endl;
     }
     return 0;
 }
