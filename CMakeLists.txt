@@ -8,3 +8,4 @@ aux_source_directory(./include DIR_SRCS)
 
 add_executable(find_best_c find_best_c.cpp ${DIR_SRCS})
 add_executable(test test.cpp ${DIR_SRCS})
+add_executable(heuristic HeuristicSearch.cpp ${DIR_SRCS})
