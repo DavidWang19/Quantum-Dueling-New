@@ -12,7 +12,7 @@ void Dueling::initProblem()
     initProblemPtr->initProblem(randomData, N, M);
     std::sort(randomData.begin(), randomData.end(), [](const RandomData& a, const RandomData& b) {
         if (a.value != b.value) return a.value < b.value;
-        return !a.isSolution;
+        return a.isSolution < b.isSolution;
     });
 }
 
