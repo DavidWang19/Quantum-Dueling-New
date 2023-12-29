@@ -27,20 +27,20 @@ constexpr bool SINGLE_GATE_ALPHA = false;
 int main()
 {
     //freopen("find_best_c.txt", "w", stdout);
-    int N = 1 << 12;
     std::unique_ptr<InitProblemInterface> initProblem = std::make_unique<RandomInit>();
     std::unique_ptr<Dueling> dueling = std::make_unique<Dueling>();
-    dueling->setN(N);
     dueling->setInitProblemPtr(std::move(initProblem));
-    for (int lgM = 5; lgM <= 5; lgM++) {
-        int M = 1 << lgM;
+    for (int lgN = 2; lgN <= 20; lgN += 2) {
+        int N = 1 << lgN;
+        int M = 1 << (lgN / 2);
+        dueling->setN(N);
         dueling->setM(M);
         //static_cast<UniDistInit*>(dueling->getInitProblemPtr().get())->setStartIndex(N / M / 2);
         dueling->initProblem();
         dueling->recordParameters();
         int bestAlpha = 0, bestIter = 0;
         double bestProb = 0;
-        for (int alpha = 1; alpha <= 100; alpha++) {
+        for (int alpha = 1;; alpha++) {
             dueling->initStateVector();
             bool breakFlag = false;
             int Iter = 0;
@@ -72,7 +72,8 @@ int main()
                 bestAlpha = alpha;
                 bestIter = Iter;
             }
-            printf("N=%d, M=%d, alpha=%d, Iter=%d, Prob=%lf\n", N, M, alpha, Iter, currentProb);
+            //printf("N=%d, M=%d, alpha=%d, Iter=%d, Prob=%lf\n", N, M, alpha, Iter, currentProb);
+            if (Iter < alpha) break;
         }
         //printf("N=%d, M=%d, bestAlpha=%d, Iter=%d, Prob=%lf\n", N, M, bestAlpha, bestIter, bestProb);
         std::cerr << "N=" << N << ", M=" << M << ", bestAlpha=" << bestAlpha << ", Iter=" << bestIter << ", Prob=" << bestProb << std::endl;
