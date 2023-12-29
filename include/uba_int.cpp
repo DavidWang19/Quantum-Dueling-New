@@ -1,4 +1,3 @@
-#include <bits/stdc++.h>
 #include <cstdlib>
 #include <iostream>
 #include <cassert>

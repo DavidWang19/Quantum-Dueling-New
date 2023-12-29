@@ -22,7 +22,7 @@ bool executeGate(std::unique_ptr<Dueling>& dueling, int target, double& currentP
     }
 }
 
-constexpr bool SINGLE_GATE_ALPHA = true;
+constexpr bool SINGLE_GATE_ALPHA = false;
 
 int main()
 {
@@ -32,7 +32,7 @@ int main()
     std::unique_ptr<Dueling> dueling = std::make_unique<Dueling>();
     dueling->setN(N);
     dueling->setInitProblemPtr(std::move(initProblem));
-    for (int lgM = 0; lgM <= 11; lgM++) {
+    for (int lgM = 5; lgM <= 5; lgM++) {
         int M = 1 << lgM;
         dueling->setM(M);
         //static_cast<UniDistInit*>(dueling->getInitProblemPtr().get())->setStartIndex(N / M / 2);
@@ -40,7 +40,7 @@ int main()
         dueling->recordParameters();
         int bestAlpha = 0, bestIter = 0;
         double bestProb = 0;
-        for (int alpha = 1; alpha <= 10; alpha++) {
+        for (int alpha = 1; alpha <= 100; alpha++) {
             dueling->initStateVector();
             bool breakFlag = false;
             int Iter = 0;
@@ -72,6 +72,7 @@ int main()
                 bestAlpha = alpha;
                 bestIter = Iter;
             }
+            printf("N=%d, M=%d, alpha=%d, Iter=%d, Prob=%lf\n", N, M, alpha, Iter, currentProb);
         }
         //printf("N=%d, M=%d, bestAlpha=%d, Iter=%d, Prob=%lf\n", N, M, bestAlpha, bestIter, bestProb);
         std::cerr << "N=" << N << ", M=" << M << ", bestAlpha=" << bestAlpha << ", Iter=" << bestIter << ", Prob=" << bestProb << std::endl;
