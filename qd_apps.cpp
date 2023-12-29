@@ -6,8 +6,11 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
+#include <fstream>
+#include <string>
 
 #define P_BAR (2.0/3.0)
+#define Problem 1 // 0 for OPNL, 1 for PSAT
 
 bool executeGate(std::unique_ptr<Dueling>& dueling, int target, double& currentProb, int& Iter) {
     if (target == 1) {
@@ -27,12 +30,11 @@ bool executeGate(std::unique_ptr<Dueling>& dueling, int target, double& currentP
 
 /*
  * 1 - (1 - pmax)^(a+1) >= pbar >= 1 - (1 - pmax)^a
- * pbar = 2/3, 3/4
+ * pbar = 2/3
  * 
  * log_(1-pmax)(1-pbar) >= a >= log_(1-pmax)(1-pbar) - 1
  * a * iterPerRound
  * IV M DV  a * iterPerRound (ie. total number of iteration)
- * 
  */
 int calcTotalIter(double pmax, int iterPerRound, const std::vector<int> &iters, const std::vector<double> &probs) {
     int a = static_cast<int> (floor(log(1 - P_BAR) / log(1 - pmax)));
@@ -45,16 +47,18 @@ int calcTotalIter(double pmax, int iterPerRound, const std::vector<int> &iters, 
     return (a + 1) * iterPerRound;;
 }
 
-/* Main function for OPNL */
-int main() {
+void OPNL(){
+     std::ofstream outFile("OPNL_out.txt");
+
     //freopen("find_best_c.txt", "w", stdout);
     std::cout << "Initializing" << std::endl; // Display the input value
     std::vector<int> iters {};
     std::vector<double> probs {};
     std::vector<int> best_iters {};
     std::vector<double> best_probs {};
-    for (int M_pow = 0; M_pow <= 10; M_pow++) {
+    for (int M_pow = 0; M_pow <= 12; M_pow++) {
         int M = 1 << M_pow;
+        outFile << "M = " << M << std::endl; // Display the input value
         std::cout << "M = " << M << std::endl; // Display the input value
         int bestTotalIter = INT_MAX;
         int bestRatio = 0;
@@ -62,6 +66,7 @@ int main() {
         for (int ratio_pow = 1; ; ratio_pow += 1) {
             int ratio = 1 << ratio_pow; // eta
             int N = M * ratio;
+            std::cout << "R = 1/" << ratio << std::endl;
             std::unique_ptr<InitProblemInterface> initProblem = std::make_unique<OPNLInit>();
             std::unique_ptr<Dueling> dueling = std::make_unique<Dueling>();
             dueling->setN(N);
@@ -110,7 +115,8 @@ int main() {
                 }
             }
             //printf("N=%d, M=%d, bestAlpha=%d, Iter=%d, Prob=%lf\n", N, M, bestAlpha, bestIter, bestProb);
-            std::cerr << "ratio= 1/" << ratio << ", N=" << N << ", bestAlpha=" << bestAlpha << ", Iter=" << bestIter << ", Prob=" << bestProb << std::endl;
+            std::cout << "ratio= 1/" << ratio << ", N=" << N << ", bestAlpha=" << bestAlpha << ", Iter=" << bestIter << ", Prob=" << bestProb << std::endl;
+            outFile << "ratio= 1/" << ratio << ", N=" << N << ", bestAlpha=" << bestAlpha << ", Iter=" << bestIter << ", Prob=" << bestProb << std::endl;
             int total_iter = calcTotalIter(bestProb, bestIter, best_iters, best_probs);
             // not searching for more ratio if total dueling rounds not increase anymore
             if (total_iter <  bestTotalIter) {
@@ -121,8 +127,108 @@ int main() {
             }
 
         }
-        std::cout << "BestTotalIter is " << bestTotalIter << std::endl;
-        std::cout << "Best M to N ratio is 1/" << bestRatio << std::endl; 
+        outFile << "BestTotalIter is " << bestTotalIter << std::endl;
+        outFile << "Best M to N ratio is 1/" << bestRatio << std::endl; 
+    }
+    outFile.close();
+}
+
+void P3SAT(){
+    std::ofstream outFile("P3SAT_out.txt");
+
+    //freopen("find_best_c.txt", "w", stdout);
+    std::cout << "Initializing" << std::endl; // Display the input value
+    std::vector<int> iters {};
+    std::vector<double> probs {};
+    std::vector<int> best_iters {};
+    std::vector<double> best_probs {};
+    for (int M_pow = 0; M_pow <= 12; M_pow++) {
+        int M = 1 << M_pow;
+        outFile << "M = " << M << std::endl; // Display the input value
+        std::cout << "M = " << M << std::endl; // Display the input value
+        int bestTotalIter = INT_MAX;
+        int bestRatio = 0;
+        // increase delta_n qubits
+        for (int ratio_pow = 1; ; ratio_pow += 1) {
+            int ratio = 1 << ratio_pow; // eta
+            int N = M * ratio;
+            std::unique_ptr<InitProblemInterface> initProblem = std::make_unique<PSATInit>();
+            
+            std::unique_ptr<Dueling> dueling = std::make_unique<Dueling>();
+            dueling->setN(N);
+            dueling->setInitProblemPtr(std::move(initProblem));
+            
+            dueling->setM(M);
+            //static_cast<UniDistInit*>(dueling->getInitProblemPtr().get())->setStartIndex(N / M / 2);
+            //M = (*initProblem).getActualM();
+            dueling->initProblem();
+            
+            dueling->recordParameters();
+            
+            int bestAlpha = 0, bestIter = 0;
+            double bestProb = 0;
+
+            for (int alpha = 1; alpha <= 15; alpha++) {
+                iters.clear();
+                probs.clear();
+                dueling->initStateVector();
+                bool breakFlag = false;
+                int Iter = 0;
+                double currentProb = dueling->getBestProb();
+                while (true) {
+                    for (int i = 0; i < alpha; i++) {
+                        if (executeGate(dueling, 1, currentProb, Iter)) {
+                            breakFlag = true;
+                            break;
+                        }
+                        iters.push_back(Iter);
+                        probs.push_back(currentProb);
+                    }
+                    if (breakFlag) break;
+                    for (int i = 0; i < alpha; i++) {
+                        if (executeGate(dueling, 2, currentProb, Iter)) {
+                            breakFlag = true;
+                            break;
+                        }
+                        iters.push_back(Iter);
+                        probs.push_back(currentProb);
+                    }
+                    if (breakFlag) break;
+                }
+
+                if (currentProb > bestProb) {
+                    bestProb = currentProb;
+                    bestAlpha = alpha;
+                    bestIter = Iter;
+                    best_iters = iters;
+                    best_probs = probs;
+                }
+            }
+            //printf("N=%d, M=%d, bestAlpha=%d, Iter=%d, Prob=%lf\n", N, M, bestAlpha, bestIter, bestProb);
+            std::cout << "ratio= 1/" << ratio << ", N=" << N << ", bestAlpha=" << bestAlpha << ", Iter=" << bestIter << ", Prob=" << bestProb << std::endl;
+            outFile << "ratio= 1/" << ratio << ", N=" << N << ", bestAlpha=" << bestAlpha << ", Iter=" << bestIter << ", Prob=" << bestProb << std::endl;
+            int total_iter = calcTotalIter(bestProb, bestIter, best_iters, best_probs);
+            // not searching for more ratio if total dueling rounds not increase anymore
+            if (total_iter <  bestTotalIter) {
+                bestTotalIter = total_iter;
+                bestRatio = ratio;
+            } else {
+                break;
+            }
+
+        }
+        outFile << "BestTotalIter is " << bestTotalIter << std::endl;
+        outFile << "Best M to N ratio is 1/" << bestRatio << std::endl; 
+    }
+    //outFile.close();
+}
+
+/* Main function for OPNL and PSAT */
+int main() {
+    if (Problem == 0) {
+        OPNL();
+    } else {
+        P3SAT();
     }
     return 0;
 }

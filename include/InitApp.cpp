@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <random>
+#include <iostream>
 
 /*
  * Optimization Problem without Solution Labeling
@@ -32,15 +33,25 @@ void OPNLInit::initProblem(std::vector<DataPoint>& randomData, int N, int M)
 
 }
 
-// void OPNLInit::initProblem(std::vector<DataPoint>& randomData, int N, int M)
-// {
-//     randomData.resize(N);
-//     int K = ceil(double(N) / M);
-//     for (int i = 0; i < N; i++) {
-//         randomData[i].value = i;
-//         randomData[i].isSolution = false;
-//     }
-//     for (int i = startIndex; i < N; i += K) {
-//         randomData[i].isSolution = true;
-//     }
-// }
+void PSATInit::initProblem(std::vector<DataPoint>& randomData, int N, int M)
+{
+    PSAT PSAT_inst(M, N);
+    randomData.resize(N);
+    int actual_M = 0;
+    int numBestSol = 0;
+    int bestSolVal = 0;
+    for (int i = 0; i < N; i++) {
+        randomData[i].value = (std::get<0> (PSAT_inst.assignments[i]));
+        randomData[i].isSolution = (std::get<1> (PSAT_inst.assignments[i]));
+        if (randomData[i].isSolution) actual_M ++;
+        if (bestSolVal == 0 ||  randomData[i].value > bestSolVal) {
+            numBestSol = 1;
+        } else if (randomData[i].value == bestSolVal) {
+            numBestSol += 1;
+        }
+    }
+
+    std::cout << "Actual M = " << actual_M << std::endl;
+    std::cout << "Number of Best Solutions = " << numBestSol << std::endl;
+    
+}
