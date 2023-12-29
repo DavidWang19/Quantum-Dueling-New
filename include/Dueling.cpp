@@ -10,7 +10,7 @@ Dueling::Dueling(int N, int M, std::unique_ptr<InitProblemInterface> initProblem
 void Dueling::initProblem()
 {
     initProblemPtr->initProblem(randomData, N, M);
-    std::sort(randomData.begin(), randomData.end(), [](const RandomData& a, const RandomData& b) {
+    std::sort(randomData.begin(), randomData.end(), [](const DataPoint& a, const DataPoint& b) {
         if (a.value != b.value) return a.value < b.value;
         return a.isSolution < b.isSolution;
     });
