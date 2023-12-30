@@ -24,7 +24,8 @@ void RandomInit::initProblem(std::vector<DataPoint>& randomData, int N, int M)
         randomData[i].isSolution = false;
     }
     std::random_device rd;
-    std::mt19937 mt(rd());
+    if (seed == -1) seed = rd();
+    std::mt19937 mt(seed);
     std::uniform_int_distribution<int> dist(0, N - 1);
     int M_cnt = M;
     while (M_cnt > 0) {

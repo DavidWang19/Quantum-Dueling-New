@@ -4,16 +4,14 @@
 int main() {
     int N = 1 << 8;
     int M = 1 << 4;
-    int DEPTH = 7;
-    int CHANGE_LIMIT = 5;
-    double PROB_TH = 0.4;
+    int DEPTH = 18;
+    int CHANGE_LIMIT = 100;
     std::unique_ptr<InitProblemInterface> initProblem = std::make_unique<UniDistInit>();
     std::unique_ptr<HeuristicDueling> dueling = std::make_unique<HeuristicDueling>(N, M, std::move(initProblem), DEPTH, CHANGE_LIMIT);
     dueling->initProblem();
     dueling->recordParameters();
     dueling->initStateVector();
-    for (int Iter = 1;; Iter++) {
-        bool breakFlag = false;
+    for (int Iter = 1; Iter <= 7; Iter++) {
         printf("Iteration #%d:\n", Iter);
         auto ret = dueling->getNextBestGateArr();
         for (int i = 0; i < DEPTH; i++) {
@@ -26,13 +24,7 @@ int main() {
             }
             double prob = dueling->getBestProb();
             printf("%.8lf\n", prob);
-            if (prob > PROB_TH) {
-                printf("\nTarget probability is achieved after %d Dueling gates!\n", (Iter - 1) * DEPTH + i + 1);
-                breakFlag = true;
-                break;
-            }
         }
-        if (breakFlag) break;
         printf("\n");
     }
     return 0;

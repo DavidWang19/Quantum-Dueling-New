@@ -19,10 +19,13 @@ class RandomInit : public InitProblemInterface
 {
     public:
         RandomInit() = default;
+        RandomInit(int seed) : seed(seed) {}
         RandomInit(RandomInit&&) = default;
         ~RandomInit() = default;
 
         virtual void initProblem(std::vector<DataPoint>& randomData, int N, int M) override;
+    private:
+        int seed = -1;
 };
 
 class FullSquareInit : public InitProblemInterface
