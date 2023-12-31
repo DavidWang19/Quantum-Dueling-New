@@ -6,7 +6,7 @@ int main() {
     int M = 1 << 4;
     int DEPTH = 18;
     int CHANGE_LIMIT = 100;
-    std::unique_ptr<InitProblemInterface> initProblem = std::make_unique<UniDistInit>();
+    std::unique_ptr<InitProblemInterface> initProblem = std::make_unique<UniDistInit>(N / M / 2);
     std::unique_ptr<HeuristicDueling> dueling = std::make_unique<HeuristicDueling>(N, M, std::move(initProblem), DEPTH, CHANGE_LIMIT);
     dueling->initProblem();
     dueling->recordParameters();
