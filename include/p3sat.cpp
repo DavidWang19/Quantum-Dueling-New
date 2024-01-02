@@ -43,12 +43,13 @@ PSAT::PSAT(int initM, int initN) : EM(initM), N(initN) {
     M = EM;
     /* For each assignment, the probability that it not satisfy a clause is 1/8,
      * (7/8)^x N = M
-     * x = log_(7/8)(M/N)
+     * numClause = log_(7/8)(M/N) = log_(7/8)(1/sqrt(N))
      * 
      */
     double psatRatio = 1.0 - (1.0 / (1 << NUM_LITERAL_PER_CLAUSE));
     numClause = static_cast<int> (ceil(log((static_cast<double> (EM))/N) / log(psatRatio)));
     
+    std::cout << "numClause  = " << numClause << std::endl;
     size_t half_size = static_cast<size_t> (numClause);
     numClause = numClause * 2; // half restrict, half for values
     if (numClause < 0) numClause = 0;
@@ -72,7 +73,7 @@ PSAT::PSAT(int initM, int initN) : EM(initM), N(initN) {
         expression.push_back(std::make_tuple(lit1, lit2, lit3));
     }
     //assignments.resize(N);
-    
+    std::cout << "Almost Done " << std::endl;
     for (size_t a = 0; a < N; a ++) {
         assignments.push_back(std::make_tuple(PSAT_val(a, half_size, expression), 
                                          PSAT_sat(a, half_size, expression)));

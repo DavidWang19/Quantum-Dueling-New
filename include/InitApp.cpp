@@ -35,19 +35,28 @@ void OPNLInit::initProblem(std::vector<DataPoint>& randomData, int N, int M)
 
 void PSATInit::initProblem(std::vector<DataPoint>& randomData, int N, int M)
 {
-    PSAT PSAT_inst(M, N);
-    randomData.resize(N);
     int actual_M = 0;
-    int numBestSol = 0;
-    int bestSolVal = 0;
-    for (int i = 0; i < N; i++) {
-        randomData[i].value = (std::get<0> (PSAT_inst.assignments[i]));
-        randomData[i].isSolution = (std::get<1> (PSAT_inst.assignments[i]));
-        if (randomData[i].isSolution) actual_M ++;
-        if (bestSolVal == 0 ||  randomData[i].value > bestSolVal) {
-            numBestSol = 1;
-        } else if (randomData[i].value == bestSolVal) {
-            numBestSol += 1;
+    int numBestSol, bestSolVal;
+    randomData.resize(N);
+    while (actual_M == 0) {
+        PSAT PSAT_inst(M, N);
+        actual_M = 0;
+        numBestSol = 0;
+        bestSolVal = 0;
+        for (int i = 0; i < N; i++) {
+            randomData[i].value = -1 * (std::get<0> (PSAT_inst.assignments[i]));
+            randomData[i].isSolution = (std::get<1> (PSAT_inst.assignments[i]));
+            if (randomData[i].isSolution) {
+                actual_M ++;
+            }
+            // } else {
+            //      randomData[i].value += static_cast<int> ((PSAT_inst.numClause) / 4);
+            // }
+            if (bestSolVal == 0 ||  randomData[i].value > bestSolVal) {
+                numBestSol = 1;
+            } else if (randomData[i].value == bestSolVal) {
+                numBestSol += 1;
+            }
         }
     }
 
