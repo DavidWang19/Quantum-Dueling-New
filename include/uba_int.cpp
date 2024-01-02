@@ -7,26 +7,31 @@
 
 using namespace std;
 
+/* Implementation of exported functions for unbounded array.
+ * This is a modification of the uba implementation from CMU 15122.
+ */ 
 
-
-// Implementation of exported functions
+/* Get the length of an uba */
 int uba_len(uba *A)
 {
     return A->size;
 }
 
+/* Get the ith element of an uba */
 int uba_get(uba* A, int i)
 {
     assert(0 <= i && i < uba_len(A));
     return A->data[i];
 }
 
+/* Set the ith element of an uba */
 void uba_set(uba* A, int i, int x)
 {
     assert(0 <= i && i < uba_len(A));
     A->data[i] = x;
 }
 
+/* Initializa a new uba with size = size */
 uba* uba_new(int size)
 {   
     assert(0 <= size);
@@ -39,6 +44,7 @@ uba* uba_new(int size)
     return A;
 }
 
+/* Resize the given uba to have size = new_limit */
 void uba_resize(uba* A, int new_limit)
 /* A may not be a valid array since A->size == A->limit is possible! */
 {
@@ -57,6 +63,7 @@ void uba_resize(uba* A, int new_limit)
     A->data = B;
 }
 
+/* Add an element to an uba */
 void uba_add(uba* A, int x)
 {
     A->data[A->size] = x;
@@ -67,6 +74,7 @@ void uba_add(uba* A, int x)
     uba_resize(A, A->limit * 2);
 }
 
+/* Remove an element from an uba */
 int uba_rem(uba* A)
 //@requires is_uba(A);
 //@requires 0 < uba_len(A);
@@ -81,6 +89,7 @@ int uba_rem(uba* A)
     return x;
 }
 
+/* Print out all elements of an uba */
 void uba_print(uba* A)
 //@requires is_uba(A);
 {

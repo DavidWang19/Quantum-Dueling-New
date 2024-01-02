@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <vector>
 #include <tuple>
 
@@ -8,6 +7,7 @@
 using lit = std::tuple<int, int>;
 using clause = std::tuple<lit, lit, lit>;
 
+/* Define the PSAT Class*/
 class PSAT {
 public:
     // Member variables
@@ -24,6 +24,4 @@ public:
     PSAT(PSAT&&) = default;
     ~PSAT() = default;
 
-private:
-    // Private member variables or functions if any
 };

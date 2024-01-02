@@ -3,6 +3,7 @@
 #include "InitProblemInterface.h"
 #include "p3sat.h"
 
+/* Initialize OPNL Problem */
 class OPNLInit : public InitProblemInterface
 {
     public:
@@ -16,6 +17,7 @@ class OPNLInit : public InitProblemInterface
         int startIndex = 0;
 };
 
+/* Initialize PMAX-3SAT Problem */
 class PSATInit : public InitProblemInterface
 {
     public:

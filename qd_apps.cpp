@@ -12,9 +12,10 @@
 
 #define P_BAR (2.0/3.0)
 #define Problem 2 // 0 for OPNL, 1 for PSAT, 2 fpr detailed PSAT
-#define P3SAT_REPEAT_NUM 1000
+#define P3SAT_REPEAT_NUM 10000
 #define N_POW_BOUND 12
 
+/* One quantum dueling oracle call. */
 bool executeGate(std::unique_ptr<Dueling>& dueling, int target, double& currentProb, int& Iter) {
     if (target == 1) {
         dueling->G1();
@@ -31,7 +32,8 @@ bool executeGate(std::unique_ptr<Dueling>& dueling, int target, double& currentP
     }
 }
 
-/*
+/* Calculate total number of calls to oracle for boosting to pbar based on the number of calls to 
+ * oracle to reach max possibility pmax.
  * 1 - (1 - pmax)^(a+1) >= pbar >= 1 - (1 - pmax)^a
  * pbar = 2/3
  * 
@@ -51,6 +53,10 @@ int calcTotalIter(double pmax, int iterPerRound, const std::vector<int> &iters, 
     return (a + 1) * iterPerRound;;
 }
 
+/* Simulation for Optimization Problem with No Solution Labeling
+ * Run base on M, and N is defined via specific ratio (the best ratio and alpha is used for number of 
+ * calls calculation).
+ */
 void OPNL(){
     std::ofstream outFile("OPNL_out.txt");
 
@@ -138,6 +144,11 @@ void OPNL(){
     outFile.close();
 }
 
+/* Simulation for PMAX-3SAT
+ * Run base on N, and we expect M to be around sqrt(N), so the M/N is used to determine number of 
+ * clauses generated for each expression. For each N, the simulation is repeated P3SAT_REPEAT_NUM
+ * times.
+ */
 void P3SAT(){
     std::cout << "Initializing" << std::endl;
     std::ofstream outFile("P3SAT_out.txt");
@@ -252,6 +263,10 @@ void P3SAT(){
     outFile.close();
 }
 
+/* Simulation for PMAX-3SAT Details
+ * Same as P3SAT() except the first reached max probability and number of calls to 
+ * reach this probability is recorded instead of total number of calls including boosting.
+ */
 void P3SAT_New() {
     std::cout << "Initializing" << std::endl;
     std::ofstream outFile("P3SAT_out.txt");
@@ -373,7 +388,7 @@ void P3SAT_New() {
     outFile.close();
 }
 
-/* Main function for OPNL and PSAT */
+/* Main function for OPNL and PSAT alternation */
 int main() {
     if (Problem == 0) {
         OPNL();

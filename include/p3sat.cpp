@@ -7,7 +7,7 @@
 
 #define NUM_LITERAL_PER_CLAUSE 3
 
-
+/* Determine whether an assignment satisfy F1, the first part of a expression */
 bool PSAT_sat(int a, int upperbound, const std::vector<clause> &expression) {
     for (size_t i = 0; i < upperbound; i ++) {
         lit lit1 = std::get<0> (expression[i]);
@@ -23,6 +23,7 @@ bool PSAT_sat(int a, int upperbound, const std::vector<clause> &expression) {
     return true;
 }
 
+/* Determine how many clauses an assignment satisfy  in F2, the second part of a expression */
 int PSAT_val(int a, int lowerbound, const std::vector<clause> &expression) {
     int count = 0;
     for (size_t i = lowerbound; i < expression.size(); i ++) {
@@ -38,7 +39,9 @@ int PSAT_val(int a, int lowerbound, const std::vector<clause> &expression) {
     return count;
 }
 
-
+/* Generate a PMAX-3SAT expression, and precompute whether an assignment is a solution, how optimized 
+ * it is as a solution, for all possible assignments' solution 
+ */
 PSAT::PSAT(int initM, int initN) : EM(initM), N(initN) {
     M = EM;
     /* For each assignment, the probability that it not satisfy a clause is 1/8,

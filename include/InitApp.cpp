@@ -4,8 +4,7 @@
 #include <random>
 #include <iostream>
 
-/*
- * Optimization Problem without Solution Labeling
+/* Optimization Problem without Solution Labeling Initialization
  * Solution to Non-solution Ratio : 1:0, 1:1, 1:3, 1:7 .. 
  * Each solution has distinct values, each non-solution's value = its corresponding solution's value + 1/2 (ie. 1 for IP)
  * For each M -> IV: M/N ratio  DV: numIter/Prob 
@@ -16,7 +15,6 @@
  * pbar = 1 - (1 - pmax)^a * (1 - p0)
  * p0 = 1 - (1 - pbar) / (1 - pmax)^a
  * pbar = 2/3, 3/4
- * 
  */
 void OPNLInit::initProblem(std::vector<DataPoint>& randomData, int N, int M)
 {
@@ -33,6 +31,10 @@ void OPNLInit::initProblem(std::vector<DataPoint>& randomData, int N, int M)
 
 }
 
+/* PMAX-3SAT Initialization
+ * A 3SAT formula consisting of log_2(N) vairables are generated with expected number of assignment that satisfy its
+ * first half being M, and the second half of this formula is used to determine how optimized a solution is.
+ */
 void PSATInit::initProblem(std::vector<DataPoint>& randomData, int N, int M)
 {
     int actual_M = 0;
